@@ -1,0 +1,5 @@
+dn: ou=SUDOers,dc=tuimac,dc=me
+description: SUDOers
+objectClass: organizationalUnit
+objectClass: top
+ou: SUDOers
