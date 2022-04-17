@@ -233,12 +233,14 @@ Resources:
                   alias vi >/dev/null 2>&1 || alias vi=vim
                 fi' > /etc/profile.d/vim.sh
                 echo ${PrimaryIP}' primary.tuimac.com' >> /etc/hosts
-                echo ${SecondaryIP}' primary.tuimac.com' >> /etc/hosts
+                echo ${SecondaryIP}' secondary.tuimac.com' >> /etc/hosts
                 echo 'primary.tuimac.com' > /etc/hostname
                 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
                 cd /home/ec2-user
                 git clone https://github.com/tuimac/tools.git; echo "cloned"
+                git clone https://github.com/tuimac/389ds_replication.git; echo "cloned"
                 chown ec2-user:ec2-user -R /home/ec2-user/tools
+                chown ec2-user:ec2-user -R /home/ec2-user/389ds_replication
                 runuser -l ec2-user -c "git config --global user.email 'tuimac.devadm01@gmail.com'"
                 runuser -l ec2-user -c "git config --global user.name 'tuimac'"
                 reboot
@@ -294,7 +296,9 @@ Resources:
                 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
                 cd /home/ec2-user
                 git clone https://github.com/tuimac/tools.git; echo "cloned"
+                git clone https://github.com/tuimac/389ds_replication.git; echo "cloned"
                 chown ec2-user:ec2-user -R /home/ec2-user/tools
+                chown ec2-user:ec2-user -R /home/ec2-user/389ds_replication
                 runuser -l ec2-user -c "git config --global user.email 'tuimac.devadm01@gmail.com'"
                 runuser -l ec2-user -c "git config --global user.name 'tuimac'"
                 reboot
