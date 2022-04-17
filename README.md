@@ -96,3 +96,6 @@ To check the replication status, you can execute `./ldap.sh rep-monitor`. For ex
     ]
 }
 ```
+
+### 3.Testing
+You can install SSSD client into your server by `sudo ./ldap.sh client-install`. Then create user and ssh <The user>@localhost to test the authentication! Have fun!

@@ -251,6 +251,7 @@ function userguide(){
     echo -e "usage: ./run.sh [server-install | client-intsall | ...]"
     echo -e "
 optional arguments:
+
 server-install          Install 389 Directory Service into your server.
 client-install          Install SSSD into your server.
 list                    List all objects whthin base suffix.
@@ -266,29 +267,31 @@ help                    Show the easy guide of the utility tool.
 
 function main(){
     [[ -z $1 ]] && { userguide; exit 1; }
-    if [ $1 == "server-install" ]; then
-        server-install
-    elif [ $1 == "client-install" ]; then
-        client-install
-    elif [ $1 == "list" ]; then
-        list
-    elif [ $1 == "create-base" ]; then
-        create-base
-    elif [ $1 == "apply" ]; then
-        apply $2
-    elif [ $1 == "primary" ]; then
-        primary
-    elif [ $1 == "secondary" ]; then
-        secondary
-    elif [ $1 == "rep-monitor" ]; then
-        rep-monitor
-    elif [ $1 == "rep-delete" ]; then
-        rep-delete
-    elif [ $1 == "help" ]; then
-        userguide
-    else
-        { userguide; exit 1; }
-    fi
+    case $1 in
+        'server-install')
+            server-install;;
+        'client-install')
+            client-install;;
+        'list')
+            list;;
+        'create-base')
+            create-base;;
+        'apply')
+            apply $2;;
+        'primary')
+            primary;;
+        'secondary')
+            secondary;;
+        'rep-monitor')
+            rep-monitor;;
+        'rep-delete')
+            rep-delete;;
+        'help')
+            userguide;;
+        *)
+            userguide
+            exit 1;;
+    esac
 }
 
 main $1
