@@ -92,7 +92,7 @@ ldap_sudo_search_base = ou=SUDOers,$SUFFIX
 ldap_uri = ldaps://$DOMAIN
 ldap_search_base = $SUFFIX
 ldap_id_use_start_tls = True
-cache_credentials = True
+cache_credentials = False
 ldap_tls_reqcert = never
 
 [nss]
