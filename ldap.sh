@@ -1,10 +1,10 @@
 #!/bin/bash
 
-DOMAIN='primary.tuimac.com'
+INSTANCE='primary'
+DOMAIN=${INSTANCE}'.tuimac.com'
 SECONDARY_HOST='secondary.tuimac.com'
 SUFFIX='dc=tuimac,dc=com'
 SUFFIX_DOMAIN='tuimac.com'
-INSTANCE='primary'
 ROOT_PASSWORD='P@ssw0rd'
 REP_PASSWORD='P@ssw0rd'
 REP_NAME='test'
@@ -14,7 +14,6 @@ function server-install(){
 
     dnf module enable 389-ds* -y
     dnf install expect 389-ds* -y
-    #dnf install -y expect 389-ds-base-1.4.3.16-13.module+el8.4.0+10307+74bbfb4e 389-ds-base-legacy-tools-1.4.3.16-13.module+el8.4.0+10307+74bbfb4e
 
 	expect -c "
 	set timeout 5
@@ -249,10 +248,19 @@ function rep-monitor(){
 }
 
 function userguide(){
-    echo -e "usage: ./run.sh [help]"
+    echo -e "usage: ./run.sh [server-install | client-intsall | ...]"
     echo -e "
 optional arguments:
-create-base              Create Base User and Group.
+server-install          Install 389 Directory Service into your server.
+client-install          Install SSSD into your server.
+list                    List all objects whthin base suffix.
+create-base             Create Default User and Group.
+apply                   Add objects followed by LDIF file. Need the argument for LDIF file path.
+primary                 Configure the replication for Primary server.
+secondary               Configure the replication for Secondary server.
+rep-monitor             Return the result of monitoring with the replication.
+rep-delete              Delete the replication configuration on Primary server.
+help                    Show the easy guide of the utility tool.
     "
 }
 
