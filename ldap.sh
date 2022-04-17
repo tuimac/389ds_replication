@@ -241,7 +241,7 @@ function rep-delete(){
 }
 
 function rep-monitor(){
-    dsconf -D 'cn=Directory Manager' ldaps://${DOMAIN} replication status \
+    dsconf -j -D 'cn=Directory Manager' -w ${ROOT_PASSWORD} ldaps://${DOMAIN} replication status \
         --suffix ${SUFFIX} \
         --bind-dn="cn=replication manager,cn=config" \
         --bind-passwd ${REP_PASSWORD}
