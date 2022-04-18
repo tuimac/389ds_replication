@@ -8,6 +8,7 @@ SUFFIX_DOMAIN='tuimac.com'
 ROOT_PASSWORD='P@ssw0rd'
 REP_PASSWORD='P@ssw0rd'
 REP_NAME='test'
+PORT='389'
 
 function server-install(){
     [[ $USER != 'root' ]] && { echo 'Must be root!'; exit 1; }
@@ -29,9 +30,9 @@ function server-install(){
 	expect \"System Group \[dirsrv\]:\"
 	send \"\r\n\"
 	expect \"Directory server network port \[*\]:\"
-	send \"\r\n\"
+	send \"${PORT}\n\"
 	expect \"Directory server identifier \[*\"
-	send \"\r\n\"
+	send \"${INSTANCE}\n\"
 	expect \"Suffix \[dc=*\"
 	send \"\r\n\"
 	expect \"Directory Manager DN \[cn=Directory Manager\]:\"
@@ -65,9 +66,10 @@ function server-install(){
 	sed -i 47i'\nsslapd-secureport: 636' /etc/dirsrv/slapd-${INSTANCE}/dse.ldif
 	systemctl start dirsrv@${INSTANCE}
 	systemctl enable dirsrv@${INSTANCE}
-	mv ds.crt /etc/openldap/
+    mkdir /etc/openldap/${INSTANCE}
+	mv ds.crt /etc/openldap/${INSTANCE}/ds.crt
 	cat <<EOF >> /etc/openldap/ldap.conf
-TLS_CACERT /etc/openldap/ds.crt
+TLS_CACERT /etc/openldap/$INSTANCE/ds.crt
 TLS_REQCERT never
 EOF
     ldapsearch -x -H ldaps://${DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
@@ -123,7 +125,7 @@ EOF
 }
 
 function list(){
-    ldapsearch -x -H ldaps://${INSTANCE}.${SUFFIX_DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
+    ldapsearch -x -H ldaps://${INSTANCE}.${SUFFIX_DOMAIN}:1636 -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
 }
 
 function apply(){
