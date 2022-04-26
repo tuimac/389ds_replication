@@ -8,6 +8,7 @@ SUFFIX_DOMAIN='tuimac.com'
 ROOT_PASSWORD='P@ssw0rd'
 REP_PASSWORD='P@ssw0rd'
 REP_NAME='test'
+PORT='389'
 
 function server-install(){
     [[ $USER != 'root' ]] && { echo 'Must be root!'; exit 1; }
@@ -67,7 +68,7 @@ function server-install(){
     systemctl enable dirsrv@${INSTANCE}
     mv ds.crt /etc/openldap/
 	cat <<EOF >> /etc/openldap/ldap.conf
-TLS_CACERT /etc/openldap/ds.crt
+TLS_CACERT /etc/openldap/$INSTANCE/ds.crt
 TLS_REQCERT never
 EOF
     ldapsearch -x -H ldaps://${DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
@@ -92,7 +93,7 @@ ldap_sudo_search_base = ou=SUDOers,$SUFFIX
 ldap_uri = ldaps://$DOMAIN
 ldap_search_base = $SUFFIX
 ldap_id_use_start_tls = True
-cache_credentials = True
+cache_credentials = False
 ldap_tls_reqcert = never
 
 [nss]
@@ -123,7 +124,7 @@ EOF
 }
 
 function list(){
-    ldapsearch -x -H ldaps://${INSTANCE}.${SUFFIX_DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
+    ldapsearch -x -H ldaps://${INSTANCE}.${SUFFIX_DOMAIN}:1636 -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
 }
 
 function apply(){
@@ -241,7 +242,7 @@ function rep-delete(){
 }
 
 function rep-monitor(){
-    dsconf -D 'cn=Directory Manager' ldaps://${DOMAIN} replication status \
+    dsconf -j -D 'cn=Directory Manager' -w ${ROOT_PASSWORD} ldaps://${DOMAIN} replication status \
         --suffix ${SUFFIX} \
         --bind-dn="cn=replication manager,cn=config" \
         --bind-passwd ${REP_PASSWORD}
@@ -251,6 +252,7 @@ function userguide(){
     echo -e "usage: ./run.sh [server-install | client-intsall | ...]"
     echo -e "
 optional arguments:
+
 server-install          Install 389 Directory Service into your server.
 client-install          Install SSSD into your server.
 list                    List all objects whthin base suffix.
@@ -266,29 +268,31 @@ help                    Show the easy guide of the utility tool.
 
 function main(){
     [[ -z $1 ]] && { userguide; exit 1; }
-    if [ $1 == "server-install" ]; then
-        server-install
-    elif [ $1 == "client-install" ]; then
-        client-install
-    elif [ $1 == "list" ]; then
-        list
-    elif [ $1 == "create-base" ]; then
-        create-base
-    elif [ $1 == "apply" ]; then
-        apply $2
-    elif [ $1 == "primary" ]; then
-        primary
-    elif [ $1 == "secondary" ]; then
-        secondary
-    elif [ $1 == "rep-monitor" ]; then
-        rep-monitor
-    elif [ $1 == "rep-delete" ]; then
-        rep-delete
-    elif [ $1 == "help" ]; then
-        userguide
-    else
-        { userguide; exit 1; }
-    fi
+    case $1 in
+        'server-install')
+            server-install;;
+        'client-install')
+            client-install;;
+        'list')
+            list;;
+        'create-base')
+            create-base;;
+        'apply')
+            apply $2;;
+        'primary')
+            primary;;
+        'secondary')
+            secondary;;
+        'rep-monitor')
+            rep-monitor;;
+        'rep-delete')
+            rep-delete;;
+        'help')
+            userguide;;
+        *)
+            userguide
+            exit 1;;
+    esac
 }
 
 main $1
