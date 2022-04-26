@@ -15,57 +15,57 @@ function server-install(){
     dnf module enable 389-ds* -y
     dnf install expect 389-ds* -y
 
-	expect -c "
-	set timeout 5
-	spawn setup-ds.pl
-	expect \"Would you like to continue with set up? \[yes\]:\"
-	send \"yes\n\"
-	expect \"Choose a setup type \[2\]:\"
-	send \"3\n\"
-	expect \"Computer name \[*\"
-	send \"${DOMAIN}\n\"
-	expect \"System User \[dirsrv\]:\"
-	send \"\r\n\"
-	expect \"System Group \[dirsrv\]:\"
-	send \"\r\n\"
-	expect \"Directory server network port \[*\]:\"
-	send \"\r\n\"
-	expect \"Directory server identifier \[*\"
-	send \"\r\n\"
-	expect \"Suffix \[dc=*\"
-	send \"\r\n\"
-	expect \"Directory Manager DN \[cn=Directory Manager\]:\"
-	send \"\r\n\"
-	expect \"Password:\"
-	send \"${ROOT_PASSWORD}\n\"
-	expect \"Password (confirm):\"
-	send \"${ROOT_PASSWORD}\n\"
-	expect \"Do you want to install the sample entries? \[no\]:\"
-	send \"\r\n\"
-	expect \"Type the full path and filename, the word suggest, or the word none \[suggest\]:\"
-	send \"\r\n\"
-	expect \"Log file is*\"
-	exit 0"
-	systemctl stop dirsrv@${INSTANCE}
-	echo $ROOT_PASSWORD > /etc/dirsrv/slapd-${INSTANCE}/password.txt
-	chown dirsrv.dirsrv /etc/dirsrv/slapd-${INSTANCE}/password.txt
-	chmod 400 /etc/dirsrv/slapd-${INSTANCE}/password.txt
-	echo -n 'Internal (Software) Token:'${ROOT_PASSWORD} > /etc/dirsrv/slapd-${INSTANCE}/pin.txt
-	chown dirsrv.dirsrv /etc/dirsrv/slapd-${INSTANCE}/pin.txt
-	chmod 400 /etc/dirsrv/slapd-${INSTANCE}/pin.txt
-	certutil -W -d /etc/dirsrv/slapd-${INSTANCE}/ -f /etc/dirsrv/slapd-${INSTANCE}/password.txt
-	cd /etc/dirsrv/slapd-${INSTANCE}/
-	openssl rand -out noise.bin 2048
-	certutil -S -x -d . -f password.txt -z noise.bin -n "Server-Cert" -s "CN=${DOMAIN}" -t "CT,C,C" -m $RANDOM -k rsa -g 2048 -Z SHA256 --keyUsage certSigning,keyEncipherment
+    expect -c "
+    set timeout 5
+    spawn setup-ds.pl
+    expect \"Would you like to continue with set up? \[yes\]:\"
+    send \"yes\n\"
+    expect \"Choose a setup type \[2\]:\"
+    send \"3\n\"
+    expect \"Computer name \[*\"
+    send \"${DOMAIN}\n\"
+    expect \"System User \[dirsrv\]:\"
+    send \"\r\n\"
+    expect \"System Group \[dirsrv\]:\"
+    send \"\r\n\"
+    expect \"Directory server network port \[*\]:\"
+    send \"\r\n\"
+    expect \"Directory server identifier \[*\"
+    send \"\r\n\"
+    expect \"Suffix \[dc=*\"
+    send \"\r\n\"
+    expect \"Directory Manager DN \[cn=Directory Manager\]:\"
+    send \"\r\n\"
+    expect \"Password:\"
+    send \"${ROOT_PASSWORD}\n\"
+    expect \"Password (confirm):\"
+    send \"${ROOT_PASSWORD}\n\"
+    expect \"Do you want to install the sample entries? \[no\]:\"
+    send \"\r\n\"
+    expect \"Type the full path and filename, the word suggest, or the word none \[suggest\]:\"
+    send \"\r\n\"
+    expect \"Log file is*\"
+    exit 0"
+    systemctl stop dirsrv@${INSTANCE}
+    echo $ROOT_PASSWORD > /etc/dirsrv/slapd-${INSTANCE}/password.txt
+    chown dirsrv.dirsrv /etc/dirsrv/slapd-${INSTANCE}/password.txt
+    chmod 400 /etc/dirsrv/slapd-${INSTANCE}/password.txt
+    echo -n 'Internal (Software) Token:'${ROOT_PASSWORD} > /etc/dirsrv/slapd-${INSTANCE}/pin.txt
+    chown dirsrv.dirsrv /etc/dirsrv/slapd-${INSTANCE}/pin.txt
+    chmod 400 /etc/dirsrv/slapd-${INSTANCE}/pin.txt
+    certutil -W -d /etc/dirsrv/slapd-${INSTANCE}/ -f /etc/dirsrv/slapd-${INSTANCE}/password.txt
+    cd /etc/dirsrv/slapd-${INSTANCE}/
+    openssl rand -out noise.bin 2048
+    certutil -S -x -d . -f password.txt -z noise.bin -n "Server-Cert" -s "CN=${DOMAIN}" -t "CT,C,C" -m $RANDOM -k rsa -g 2048 -Z SHA256 --keyUsage certSigning,keyEncipherment
     rm /etc/dirsrv/slapd-${INSTANCE}/password.txt
-	certutil -L -d /etc/dirsrv/slapd-${INSTANCE}
-	certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert" -a > ds.crt
-	certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert"
-	sed -i 46i'\nsslapd-security: on' /etc/dirsrv/slapd-${INSTANCE}/dse.ldif
-	sed -i 47i'\nsslapd-secureport: 636' /etc/dirsrv/slapd-${INSTANCE}/dse.ldif
-	systemctl start dirsrv@${INSTANCE}
-	systemctl enable dirsrv@${INSTANCE}
-	mv ds.crt /etc/openldap/
+    certutil -L -d /etc/dirsrv/slapd-${INSTANCE}
+    certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert" -a > ds.crt
+    certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert"
+    sed -i 46i'\nsslapd-security: on' /etc/dirsrv/slapd-${INSTANCE}/dse.ldif
+    sed -i 47i'\nsslapd-secureport: 636' /etc/dirsrv/slapd-${INSTANCE}/dse.ldif
+    systemctl start dirsrv@${INSTANCE}
+    systemctl enable dirsrv@${INSTANCE}
+    mv ds.crt /etc/openldap/
 	cat <<EOF >> /etc/openldap/ldap.conf
 TLS_CACERT /etc/openldap/ds.crt
 TLS_REQCERT never
