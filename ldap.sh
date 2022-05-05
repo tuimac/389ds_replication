@@ -13,8 +13,8 @@ PORT='389'
 function server-install(){
     [[ $USER != 'root' ]] && { echo 'Must be root!'; exit 1; }
 
-    dnf module enable 389-ds* -y
-    dnf install expect 389-ds* -y
+    dnf module enable 389-ds -y
+    dnf install expect 389-ds-base 389-ds-base-legacy-tools -y
 
     expect -c "
     set timeout 5
@@ -124,7 +124,7 @@ EOF
 }
 
 function list(){
-    ldapsearch -x -H ldaps://${INSTANCE}.${SUFFIX_DOMAIN}:1636 -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
+    ldapsearch -x -H ldaps://${INSTANCE}.${SUFFIX_DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
 }
 
 function apply(){
