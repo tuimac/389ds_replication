@@ -234,8 +234,8 @@ Resources:
                   # for bash and zsh, only if no alias is already set
                   alias vi >/dev/null 2>&1 || alias vi=vim
                 fi' > /etc/profile.d/vim.sh
-                echo ${PrimaryIP}' primary primary.tuimac.com' >> /etc/hosts
-                echo ${SecondaryIP}' secondary secondary.tuimac.com' >> /etc/hosts
+                echo ${PrimaryIP}' primary.tuimac.com' >> /etc/hosts
+                echo ${SecondaryIP}' secondary.tuimac.com' >> /etc/hosts
                 echo 'primary.tuimac.com' > /etc/hostname
                 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
                 cd /home/ec2-user
@@ -294,8 +294,8 @@ Resources:
                   # for bash and zsh, only if no alias is already set
                   alias vi >/dev/null 2>&1 || alias vi=vim
                 fi' > /etc/profile.d/vim.sh
-                echo ${PrimaryIP}' primary primary.tuimac.com' >> /etc/hosts
-                echo ${SecondaryIP}' secondary secondary.tuimac.com' >> /etc/hosts
+                echo ${PrimaryIP}' primary.tuimac.com' >> /etc/hosts
+                echo ${SecondaryIP}' secondary.tuimac.com' >> /etc/hosts
                 echo 'secondary.tuimac.com' > /etc/hostname
                 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
                 cd /home/ec2-user
