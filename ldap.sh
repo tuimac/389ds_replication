@@ -9,6 +9,7 @@ ROOT_PASSWORD='P@ssw0rd'
 REP_PASSWORD='P@ssw0rd'
 REP_NAME='test'
 PORT='389'
+PASS_FILE='pwdfile.txt'
 
 function server-install(){
     [[ $USER != 'root' ]] && { echo 'Must be root!'; exit 1; }
@@ -37,9 +38,9 @@ function server-install(){
     send \"\r\n\"
     expect \"Directory Manager DN \[cn=Directory Manager\]:\"
     send \"\r\n\"
-    expect \"Password:\"
+    expect \"*Password:*\"
     send \"${ROOT_PASSWORD}\n\"
-    expect \"Password (confirm):\"
+    expect \"*Password (confirm):*\"
     send \"${ROOT_PASSWORD}\n\"
     expect \"Do you want to install the sample entries? \[no\]:\"
     send \"\r\n\"
@@ -47,24 +48,20 @@ function server-install(){
     send \"\r\n\"
     expect \"Log file is*\"
     exit 0"
-    systemctl stop dirsrv@${INSTANCE}
-    echo $ROOT_PASSWORD > /etc/dirsrv/slapd-${INSTANCE}/password.txt
-    chown dirsrv.dirsrv /etc/dirsrv/slapd-${INSTANCE}/password.txt
-    chmod 400 /etc/dirsrv/slapd-${INSTANCE}/password.txt
+    echo $ROOT_PASSWORD > /etc/dirsrv/slapd-${INSTANCE}/${PASS_FILE}
+    chown dirsrv.dirsrv /etc/dirsrv/slapd-${INSTANCE}/${PASS_FILE}
+    chmod 400 /etc/dirsrv/slapd-${INSTANCE}/${PASS_FILE}
     echo -n 'Internal (Software) Token:'${ROOT_PASSWORD} > /etc/dirsrv/slapd-${INSTANCE}/pin.txt
     chown dirsrv.dirsrv /etc/dirsrv/slapd-${INSTANCE}/pin.txt
     chmod 400 /etc/dirsrv/slapd-${INSTANCE}/pin.txt
-    certutil -W -d /etc/dirsrv/slapd-${INSTANCE}/ -f /etc/dirsrv/slapd-${INSTANCE}/password.txt
+    certutil -W -d /etc/dirsrv/slapd-${INSTANCE}/ -f /etc/dirsrv/slapd-${INSTANCE}/${PASS_FILE}
     cd /etc/dirsrv/slapd-${INSTANCE}/
-    openssl rand -out noise.bin 2048
-    certutil -S -x -d . -f password.txt -z noise.bin -n "Server-Cert" -s "CN=${DOMAIN}" -t "CT,C,C" -m $RANDOM -k rsa -g 2048 -Z SHA256 --keyUsage certSigning,keyEncipherment
-    rm /etc/dirsrv/slapd-${INSTANCE}/password.txt
+    openssl rand -out noise.bin 4096
+    certutil -S -x -d . -f ${PASS_FILE} -z noise.bin -n "Server-Cert" -s "CN=${DOMAIN}" -t "CT,C,C" -m $RANDOM -k rsa -g 2048 -Z SHA256 --keyUsage digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE}
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert" -a > ds.crt
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert"
-    sed -i 46i'\nsslapd-security: on' /etc/dirsrv/slapd-${INSTANCE}/dse.ldif
-    sed -i 47i'\nsslapd-secureport: 636' /etc/dirsrv/slapd-${INSTANCE}/dse.ldif
-    systemctl start dirsrv@${INSTANCE}
+    dsconf -D "cn=Directory Manager" ldap://${DOMAIN} config replace nsslapd-securePort=636 nsslapd-security=on
     systemctl enable dirsrv@${INSTANCE}
     mv ds.crt /etc/openldap/
 	cat <<EOF >> /etc/openldap/ldap.conf
