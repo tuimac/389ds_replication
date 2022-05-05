@@ -218,7 +218,9 @@ Resources:
             LOG=/var/log/user-data.log
             touch $LOG
             exec >> $LOG 2>&1
-                dnf update -y --releasever=8.4
+                echo '8.4' > /etc/yum/vars/releasever
+                echo '8.4' > /etc/dnf/vars/releasever
+                dnf update -y
                 dnf install -y podman git vim*
                 mkdir -p /etc/vim/undo
                 mkdir -p /etc/vim/backup
@@ -276,7 +278,9 @@ Resources:
             LOG=/var/log/user-data.log
             touch $LOG
             exec >> $LOG 2>&1
-                dnf update -y --releasever=8.4
+                echo '8.4' > /etc/yum/vars/releasever
+                echo '8.4' > /etc/dnf/vars/releasever
+                dnf update -y
                 dnf install -y podman git vim*
                 mkdir -p /etc/vim/undo
                 mkdir -p /etc/vim/backup
