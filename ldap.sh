@@ -64,7 +64,7 @@ function server-install(){
     dsconf -D "cn=Directory Manager" ldap://${DOMAIN} config replace nsslapd-securePort=636 nsslapd-security=on
     systemctl enable dirsrv@${INSTANCE}
     mv ds.crt /etc/openldap/
-	cat <<EOF >> /etc/openldap/ldap.conf
+    cat <<EOF >> /etc/openldap/ldap.conf
 TLS_CACERT /etc/openldap/$INSTANCE/ds.crt
 TLS_REQCERT never
 EOF
