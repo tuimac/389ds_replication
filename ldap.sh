@@ -48,23 +48,24 @@ function server-install(){
     send \"\r\n\"
     expect \"Log file is*\"
     exit 0"
-    echo $ROOT_PASSWORD > /etc/dirsrv/slapd-${INSTANCE}/${PASS_FILE}
-    chown dirsrv.dirsrv /etc/dirsrv/slapd-${INSTANCE}/${PASS_FILE}
-    chmod 400 /etc/dirsrv/slapd-${INSTANCE}/${PASS_FILE}
-    echo -n 'Internal (Software) Token:'${ROOT_PASSWORD} > /etc/dirsrv/slapd-${INSTANCE}/pin.txt
-    chown dirsrv.dirsrv /etc/dirsrv/slapd-${INSTANCE}/pin.txt
-    chmod 400 /etc/dirsrv/slapd-${INSTANCE}/pin.txt
-    certutil -W -d /etc/dirsrv/slapd-${INSTANCE}/ -f /etc/dirsrv/slapd-${INSTANCE}/${PASS_FILE}
+
     cd /etc/dirsrv/slapd-${INSTANCE}/
+    echo $ROOT_PASSWORD > ${PASS_FILE}
+    chown dirsrv.dirsrv ${PASS_FILE}
+    chmod 400 ${PASS_FILE}
+    echo -n 'Internal (Software) Token:'${ROOT_PASSWORD} > pin.txt
+    chown dirsrv.dirsrv pin.txt
+    chmod 400 pin.txt
+    certutil -W -d /etc/dirsrv/slapd-${INSTANCE}/ -f ${PASS_FILE}
     openssl rand -out noise.bin 4096
-    certutil -S -x -d . -f ${PASS_FILE} -z noise.bin -n "Server-Cert" -s "CN=${DOMAIN}" -t "CT,C,C" -m $RANDOM -k rsa -g 2048 -Z SHA256 --keyUsage digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment
+    certutil -S -x -d . -f ${PASS_FILE} -z noise.bin -n "Server-Cert" -s "CN=${DOMAIN}" -m $RANDOM -k rsa -g 4096 -Z SHA256 --keyUsage digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE}
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert" -a > ds.crt
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert"
     dsconf -D "cn=Directory Manager" -w ${ROOT_PASSWORD} ldap://${DOMAIN} config replace nsslapd-securePort=636 nsslapd-security=on
     systemctl enable dirsrv@${INSTANCE}
-    cp ds.crt /etc/openldap/
-
+    mkdir /etc/openldap/${INSTANCE}
+    cp ds.crt /etc/openldap/${INSTANCE}
     cat <<EOF >> /etc/openldap/ldap.conf
 TLS_CACERT /etc/openldap/$INSTANCE/ds.crt
 TLS_REQCERT never
@@ -122,7 +123,7 @@ EOF
 }
 
 function list(){
-    ldapsearch -x -H ldaps://${DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
+    ldapsearch -x -H ldaps://${DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX} -d 33
 }
 
 function logs(){
