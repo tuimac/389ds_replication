@@ -70,6 +70,7 @@ function server-install(){
 TLS_CACERT /etc/openldap/$INSTANCE/ds.crt
 TLS_REQCERT never
 EOF
+    systemctl restart dirsrv@${INSTANCE}
     ldapsearch -x -H ldaps://${DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
 }
 
