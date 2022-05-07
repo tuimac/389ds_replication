@@ -1,10 +1,10 @@
 #!/bin/bash
 
 INSTANCE='primary'
-DOMAIN=${INSTANCE}'.tuimac.com'
+SUFFIX_DOMAIN='tuimac.com'
+DOMAIN=${INSTANCE}'.'${SUFFIX_DOMAIN}
 SECONDARY_HOST='secondary.tuimac.com'
 SUFFIX='dc=tuimac,dc=com'
-SUFFIX_DOMAIN='tuimac.com'
 ROOT_PASSWORD='P@ssw0rd'
 REP_PASSWORD='P@ssw0rd'
 REP_NAME='test'
@@ -61,9 +61,10 @@ function server-install(){
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE}
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert" -a > ds.crt
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert"
-    dsconf -D "cn=Directory Manager" ldap://${DOMAIN} config replace nsslapd-securePort=636 nsslapd-security=on
+    dsconf -D "cn=Directory Manager" -w ${ROOT_PASSWORD} ldap://${DOMAIN} config replace nsslapd-securePort=636 nsslapd-security=on
     systemctl enable dirsrv@${INSTANCE}
-    mv ds.crt /etc/openldap/
+    cp ds.crt /etc/openldap/
+
     cat <<EOF >> /etc/openldap/ldap.conf
 TLS_CACERT /etc/openldap/$INSTANCE/ds.crt
 TLS_REQCERT never
@@ -121,7 +122,7 @@ EOF
 }
 
 function list(){
-    ldapsearch -x -H ldaps://${INSTANCE}.${SUFFIX_DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
+    ldapsearch -x -H ldaps://${DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
 }
 
 function logs(){
@@ -276,7 +277,7 @@ function main(){
     [[ -z $1 ]] && { userguide; exit 1; }
     case $1 in
         'server-install')
-            server-install;;
+            server-install > 389ds-server-install.log 2>&1;;
         'client-install')
             client-install;;
         'list')
