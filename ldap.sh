@@ -58,7 +58,7 @@ function server-install(){
     chmod 400 pin.txt
     certutil -W -d /etc/dirsrv/slapd-${INSTANCE}/ -f ${PASS_FILE}
     openssl rand -out noise.bin 4096
-    certutil -S -x -d . -f ${PASS_FILE} -z noise.bin -n "Server-Cert" -s "CN=${DOMAIN}" -m $RANDOM -k rsa -g 4096 -Z SHA256 --keyUsage digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment
+    certutil -S -x -d . -f ${PASS_FILE} -z noise.bin -n "Server-Cert" -s "CN=${DOMAIN}" -t "CT,C,C" -m $RANDOM -k rsa -g 4096 -Z SHA256 --keyUsage digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE}
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert" -a > ds.crt
     certutil -L -d /etc/dirsrv/slapd-${INSTANCE} -n "Server-Cert"
