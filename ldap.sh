@@ -124,6 +124,14 @@ function list(){
     ldapsearch -x -H ldaps://${INSTANCE}.${SUFFIX_DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
 }
 
+function logs(){
+    [[ $USER != 'root' ]] && { echo 'Must be root!'; exit 1; }
+    echo -en '\n################# Access Log #################\n\n'
+    tail -n 50 /var/log/dirsrv/slapd-primary/access
+    echo -en '\n################# Error Log #################\n\n'
+    tail -n 50 /var/log/dirsrv/slapd-primary/errors
+}
+
 function apply(){
     [[ -z $1 ]] && { echo 'Need argument!'; exit 1; }
     ldapadd -x -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -f $1
@@ -253,6 +261,7 @@ optional arguments:
 server-install          Install 389 Directory Service into your server.
 client-install          Install SSSD into your server.
 list                    List all objects whthin base suffix.
+logs                    Tail each log file with last 50 records .
 create-base             Create Default User and Group.
 apply                   Add objects followed by LDIF file. Need the argument for LDIF file path.
 primary                 Configure the replication for Primary server.
@@ -272,6 +281,8 @@ function main(){
             client-install;;
         'list')
             list;;
+        'logs')
+            logs;;
         'create-base')
             create-base;;
         'apply')
