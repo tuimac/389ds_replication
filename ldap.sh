@@ -74,7 +74,9 @@ EOF
     mkdir /usr/sbin/dirsrv
     mv /usr/sbin/ns-slapd /usr/sbin/dirsrv/ns-slapd
     cat /etc/systemd/system/dirsrv.target.wants/dirsrv@${INSTANCE}.service
-    sed -i 's/ExecStart=\/usr\/sbin\/ns-slapd -D \/etc\/dirsrv\/slapd-%i -i \/run\/dirsrv\/slapd-%i.pid/ExecStart=\/usr\/sbin\/dirsrv\/ns-slapd -D \/etc\/dirsrv\/slapd-%i -i \/run\/dirsrv\/slapd-%i.pid/' /etc/systemd/system/dirsrv.target.wants/dirsrv@${INSTANCE}.service
+    sed -i 's/ExecStart=\/usr\/sbin\/ns-slapd/ExecStart=\/usr\/sbin\/dirsrv\/ns-slapd/' /etc/systemd/system/multi-user.target.wants/dirsrv@${INSTANCE}.service
+    sed -i 's/ExecStart=\/usr\/sbin\/ns-slapd/ExecStart=\/usr\/sbin\/dirsrv\/ns-slapd/' /etc/systemd/system/dirsrv.target.wants/dirsrv@${INSTANCE}.service
+    sed -i 's/ExecStart=\/usr\/sbin\/ns-slapd/ExecStart=\/usr\/sbin\/dirsrv\/ns-slapd/' /usr/lib/systemd/system/dirsrv@.service
     systemctl daemon-reload
     systemctl start dirsrv@${INSTANCE}
     ldapsearch -x -H ldaps://${DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
