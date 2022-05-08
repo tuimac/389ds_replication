@@ -73,7 +73,7 @@ EOF
     systemctl stop dirsrv@${INSTANCE}
     mkdir /usr/sbin/dirsrv
     mv /usr/sbin/ns-slapd /usr/sbin/dirsrv/ns-slapd
-    sed -i 's/ExecStart=*/ExecStart=\/usr\/sbin\/dirsrv\/ns-slapd -D \/etc\/dirsrv\/slapd-%i -i \/run\/dirsrv\/slapd-%i.pid' /etc/systemd/system/dirsrv.target.wants/dirsrv@${INSTANCE}.service
+    sed -i 's/ExecStart=*/ExecStart=\/usr\/sbin\/dirsrv\/ns-slapd -D \/etc\/dirsrv\/slapd-%i -i \/run\/dirsrv\/slapd-%i.pid/' /etc/systemd/system/dirsrv.target.wants/dirsrv@${INSTANCE}.service
     systemctl daemon-reload
     systemctl start dirsrv@${INSTANCE}
     ldapsearch -x -H ldaps://${DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
