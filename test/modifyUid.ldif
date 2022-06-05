@@ -1,0 +1,4 @@
+dn: uid=test,ou=People,dc=tuimac,dc=com
+changetype: modify
+replace: gidNumber
+gidNumber: 3000

@@ -1,0 +1,4 @@
+dn: cn=test,ou=Groups,dc=tuimac,dc=com
+changetype: modify
+replace: gidNumber
+gidNumber: 3000
