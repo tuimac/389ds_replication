@@ -287,7 +287,7 @@ function main(){
     [[ -z $1 ]] && { userguide; exit 1; }
     case $1 in
         'server-install')
-            server-install > 389ds-server-install.log 2>&1;;
+            server-install;;
         'client-install')
             client-install;;
         'list')
