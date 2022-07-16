@@ -132,7 +132,7 @@ EOF
 }
 
 function list(){
-    ldapsearch -x -H ldaps://${DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX} -d 33
+    ldapsearch -x -H ldaps://${DOMAIN} -D "cn=Directory Manager" -w ${ROOT_PASSWORD} -b ${SUFFIX}
 }
 
 function logs(){
